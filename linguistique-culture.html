@@ -20,6 +20,10 @@
     --xenisme-bg: #fef0e7;
     --cultureme: #f39c12;
     --cultureme-bg: #fef9e7;
+    --neologie: #16a085;
+    --neologie-bg: #e8f6f3;
+    --etympop: #e74c3c;
+    --etympop-bg: #fdedec;
     --sapir: #1a1a2e;
     --sapir-bg: #e8e8f0;
     --bg: #faf8f5;
@@ -214,6 +218,14 @@
   .card-cultureme .card-title { color: var(--cultureme); }
   .card-cultureme .example { color: var(--cultureme); }
 
+  .card-neologie { background: var(--neologie-bg); border-color: var(--neologie); }
+  .card-neologie .card-title { color: var(--neologie); }
+  .card-neologie .example { color: var(--neologie); }
+
+  .card-etympop { background: var(--etympop-bg); border-color: var(--etympop); }
+  .card-etympop .card-title { color: var(--etympop); }
+  .card-etympop .example { color: var(--etympop); }
+
   .card-sapir { background: var(--sapir-bg); border-color: var(--sapir); }
   .card-sapir .card-title { color: var(--sapir); }
 
@@ -297,6 +309,66 @@
     font-weight: 700;
     font-size: 0.85rem;
     color: var(--cultureme);
+  }
+
+  /* Néologie process wrapper */
+  .process-wrap {
+    border: 2px dashed var(--neologie);
+    border-radius: 16px;
+    padding: 1.2rem;
+    position: relative;
+    width: 100%;
+  }
+
+  .process-wrap-label {
+    position: absolute;
+    top: -0.7rem;
+    right: 1.5rem;
+    background: var(--bg);
+    padding: 0 0.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--neologie);
+  }
+
+  /* Sidebar annotation card */
+  .sidebar-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .sidebar-note .card { flex: 1; }
+
+  .sidebar-note .annotation {
+    flex: 0 0 280px;
+    position: relative;
+  }
+
+  .annotation-arrow {
+    position: absolute;
+    top: 1.5rem;
+    left: -1rem;
+    width: 1rem;
+    height: 2px;
+    background: var(--line);
+  }
+
+  .annotation-arrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -3px;
+    border: 4px solid transparent;
+    border-right-color: var(--line);
+  }
+
+  @media (max-width: 700px) {
+    .sidebar-note { flex-direction: column; }
+    .sidebar-note .annotation { flex: 1; }
+    .annotation-arrow { display: none; }
   }
 
   /* Bottom theory card */
@@ -432,77 +504,128 @@
           <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
         </div>
 
-        <!-- Row 2: Emprunt / Calque (two strategies) -->
-        <div class="pair">
-          <div class="card card-emprunt">
-            <div class="card-title">Emprunt lexical</div>
-            <div class="card-origin">Stratégie : importer le mot</div>
-            <div class="card-def">Adoption d'un mot étranger, parfois adapté phonétiquement. Trace fossile du contact entre cultures.</div>
-            <div class="card-examples">
-              <span class="example">redingote ← riding coat</span>
-              <span class="example">algèbre ← al-jabr</span>
-              <span class="example">tsunami</span>
-              <span class="example">zéro ← ṣifr</span>
-              <span class="example">chocolat ← xocolātl</span>
-              <span class="example">café ← qahwa</span>
-              <span class="example">robot ← robota</span>
-              <span class="example">kiosque ← köşk</span>
-              <span class="example">banane ← banana</span>
-              <span class="example">abricot ← al-barqūq</span>
-              <span class="example">bazar ← bāzār</span>
-              <span class="example">pyjama ← pāy-jāma</span>
+        <!-- Néologie: processus englobant -->
+        <div class="process-wrap">
+          <span class="process-wrap-label">Néologie — création de mots nouveaux</span>
+
+          <div style="display:flex;flex-direction:column;gap:1rem;margin-top:0.5rem;">
+
+            <!-- Néologie intro card -->
+            <div class="card card-neologie full-width">
+              <div class="card-title">Néologie</div>
+              <div class="card-origin">gr. néo « nouveau » + logos « mot » · processus actif</div>
+              <div class="card-def">Processus de création de mots nouveaux dans une langue. Là où la lacune lexicale décrit un <em>manque</em>, la néologie est la <em>réponse créative</em> à ce manque. Elle peut passer par l'emprunt ou le calque, mais aussi par des voies propres.</div>
+              <div class="card-examples">
+                <span class="example">dérivation : ordinateur (1955, du lat. ordinator)</span>
+                <span class="example">mot-valise : courriel = courrier + électronique</span>
+                <span class="example">mot-valise : informatique = information + automatique</span>
+                <span class="example">métaphore : souris (informatique)</span>
+                <span class="example">mot-valise : franglais = français + anglais</span>
+                <span class="example">dérivation : logiciel (1972, de logique)</span>
+                <span class="example">siglaison : radar = radio detection and ranging</span>
+                <span class="example">troncation : métro ← métropolitain</span>
+              </div>
             </div>
-          </div>
 
-          <div class="pair-bridge">&#8596; 2 stratégies</div>
-
-          <div class="card card-calque">
-            <div class="card-title">Calque</div>
-            <div class="card-origin">Stratégie : traduire le mot</div>
-            <div class="card-def">Traduction littérale, morphème par morphème, d'un mot étranger avec les ressources de sa propre langue.</div>
-            <div class="card-examples">
-              <span class="example">gratte-ciel ← skyscraper</span>
-              <span class="example">lune de miel ← honeymoon</span>
-              <span class="example">Wolkenkratzer ← skyscraper</span>
-              <span class="example">libre-service ← self-service</span>
-              <span class="example">souris (info) ← mouse</span>
-              <span class="example">fin de semaine ← weekend</span>
-              <span class="example">rascacielos ← skyscraper</span>
-              <span class="example">superhomme ← Übermensch</span>
-              <span class="example">mot-clé ← keyword</span>
-              <span class="example">jardin d'enfants ← Kindergarten</span>
-              <span class="example">logiciel ← software</span>
+            <div class="flow">
+              <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+              <span>parmi ses stratégies, face à l'étranger…</span>
+              <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
             </div>
-          </div>
-        </div>
 
-        <!-- Flow -->
-        <div class="flow">
-          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
-          <span>degré d'intégration dans la langue d'accueil</span>
-          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
-        </div>
+            <!-- Row 2: Emprunt / Calque (two strategies) -->
+            <div class="pair">
+              <div class="card card-emprunt">
+                <div class="card-title">Emprunt lexical</div>
+                <div class="card-origin">Stratégie : importer le mot</div>
+                <div class="card-def">Adoption d'un mot étranger, parfois adapté phonétiquement. Trace fossile du contact entre cultures.</div>
+                <div class="card-examples">
+                  <span class="example">redingote ← riding coat</span>
+                  <span class="example">algèbre ← al-jabr</span>
+                  <span class="example">tsunami</span>
+                  <span class="example">zéro ← ṣifr</span>
+                  <span class="example">chocolat ← xocolātl</span>
+                  <span class="example">café ← qahwa</span>
+                  <span class="example">robot ← robota</span>
+                  <span class="example">kiosque ← köşk</span>
+                  <span class="example">banane ← banana</span>
+                  <span class="example">abricot ← al-barqūq</span>
+                  <span class="example">bazar ← bāzār</span>
+                  <span class="example">pyjama ← pāy-jāma</span>
+                </div>
+              </div>
 
-        <!-- Row 3: Xénisme -->
-        <div class="card card-xenisme full-width" style="max-width:500px;margin:0 auto;">
-          <div class="card-title">Xénisme</div>
-          <div class="card-origin">Emprunt non intégré · reste « étranger »</div>
-          <div class="card-def">Mot étranger utilisé tel quel, souvent en italique, sans adaptation. Degré zéro de l'intégration — le mot garde son altérité.</div>
-          <div class="card-examples">
-            <span class="example">Schadenfreude</span>
-            <span class="example">wabi-sabi</span>
-            <span class="example">Weltanschauung</span>
-            <span class="example">dolce vita</span>
-            <span class="example">Wanderlust</span>
-            <span class="example">Zeitgeist</span>
-            <span class="example">ubuntu</span>
-            <span class="example">ikigai</span>
-            <span class="example">Gemütlichkeit</span>
-            <span class="example">sprezzatura</span>
-            <span class="example">duende</span>
-            <span class="example">meraki</span>
-            <span class="example">Fernweh</span>
-            <span class="example">jugaad</span>
+              <div class="pair-bridge">&#8596; 2 stratégies</div>
+
+              <div class="card card-calque">
+                <div class="card-title">Calque</div>
+                <div class="card-origin">Stratégie : traduire le mot</div>
+                <div class="card-def">Traduction littérale, morphème par morphème, d'un mot étranger avec les ressources de sa propre langue.</div>
+                <div class="card-examples">
+                  <span class="example">gratte-ciel ← skyscraper</span>
+                  <span class="example">lune de miel ← honeymoon</span>
+                  <span class="example">Wolkenkratzer ← skyscraper</span>
+                  <span class="example">libre-service ← self-service</span>
+                  <span class="example">souris (info) ← mouse</span>
+                  <span class="example">fin de semaine ← weekend</span>
+                  <span class="example">rascacielos ← skyscraper</span>
+                  <span class="example">superhomme ← Übermensch</span>
+                  <span class="example">mot-clé ← keyword</span>
+                  <span class="example">jardin d'enfants ← Kindergarten</span>
+                  <span class="example">logiciel ← software</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Étymologie populaire: accident de l'emprunt -->
+            <div class="sidebar-note">
+              <div class="card card-etympop">
+                <div class="card-title">Étymologie populaire</div>
+                <div class="card-origin">Remotivation · l'accident de parcours de l'emprunt</div>
+                <div class="card-def">Déformation d'un mot emprunté pour lui donner un sens apparent dans la langue d'accueil, même si c'est un faux raccourci. La langue ne se contente pas d'importer — elle <em>réinterprète</em>, parfois en trahissant l'origine, pour que le mot « fasse sens » dans son propre système.</div>
+                <div class="card-examples">
+                  <span class="example">choucroute ← sûrkrût (remotivé en « chou-croûte »)</span>
+                  <span class="example">contredanse ← country dance (« danse en face-à-face »)</span>
+                  <span class="example">miniature ← minium (relu comme « mini »)</span>
+                  <span class="example">vagabond ← Walken (relu via « vagus »)</span>
+                  <span class="example">hamburger (relu comme ham + burger)</span>
+                  <span class="example">cockroach ← cucaracha (relu cock + roach)</span>
+                  <span class="example">female ← femelle (relu comme fe + male)</span>
+                  <span class="example">primevère ← primo vere (relu « prime verte »)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flow -->
+            <div class="flow">
+              <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+              <span>degré d'intégration dans la langue d'accueil</span>
+              <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+            </div>
+
+            <!-- Row 3: Xénisme -->
+            <div class="card card-xenisme full-width" style="max-width:500px;margin:0 auto;">
+              <div class="card-title">Xénisme</div>
+              <div class="card-origin">Emprunt non intégré · reste « étranger »</div>
+              <div class="card-def">Mot étranger utilisé tel quel, souvent en italique, sans adaptation. Degré zéro de l'intégration — le mot garde son altérité.</div>
+              <div class="card-examples">
+                <span class="example">Schadenfreude</span>
+                <span class="example">wabi-sabi</span>
+                <span class="example">Weltanschauung</span>
+                <span class="example">dolce vita</span>
+                <span class="example">Wanderlust</span>
+                <span class="example">Zeitgeist</span>
+                <span class="example">ubuntu</span>
+                <span class="example">ikigai</span>
+                <span class="example">Gemütlichkeit</span>
+                <span class="example">sprezzatura</span>
+                <span class="example">duende</span>
+                <span class="example">meraki</span>
+                <span class="example">Fernweh</span>
+                <span class="example">jugaad</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -538,6 +661,8 @@
   <div class="legend-item"><div class="legend-dot" style="background:var(--emprunt)"></div>Importation brute</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--calque)"></div>Traduction-adaptation</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--xenisme)"></div>Altérité préservée</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--neologie)"></div>Processus créatif</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--etympop)"></div>Accident de parcours</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--cultureme)"></div>Englobant culturel</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--sapir)"></div>Fondement théorique</div>
 </div>
