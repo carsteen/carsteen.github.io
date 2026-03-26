@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartographie des transferts lexicaux entre langues</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+  :root {
+    --realia: #c0392b;
+    --realia-bg: #fdecea;
+    --lacune: #2980b9;
+    --lacune-bg: #eaf2f8;
+    --emprunt: #27ae60;
+    --emprunt-bg: #e8f8f0;
+    --calque: #8e44ad;
+    --calque-bg: #f4ecf7;
+    --xenisme: #d35400;
+    --xenisme-bg: #fef0e7;
+    --cultureme: #f39c12;
+    --cultureme-bg: #fef9e7;
+    --sapir: #1a1a2e;
+    --sapir-bg: #e8e8f0;
+    --bg: #faf8f5;
+    --text: #2c2c2c;
+    --muted: #777;
+    --line: #ccc;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  /* Navigation */
+  .nav {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav a {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav a:hover { color: var(--text); }
+
+  .nav .sep { color: var(--line); font-size: 0.75rem; }
+
+  .nav .current {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+
+  .diagram {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Central axis */
+  .axis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+  }
+
+  .axis::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--realia), var(--emprunt), var(--calque));
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  /* Symmetry row */
+  .symmetry-row {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .mirror-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg);
+    padding: 0.2rem 0.8rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    z-index: 5;
+    white-space: nowrap;
+  }
+
+  /* Cards */
+  .card {
+    flex: 1;
+    max-width: 400px;
+    border-radius: 12px;
+    padding: 1.3rem 1.4rem;
+    position: relative;
+    border: 1.5px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+  }
+
+  .card-origin {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+    opacity: 0.7;
+  }
+
+  .card-def {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin-bottom: 0.7rem;
+  }
+
+  .card-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .example {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 0.82rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+
+  /* Specific card colors */
+  .card-realia { background: var(--realia-bg); border-color: var(--realia); }
+  .card-realia .card-title { color: var(--realia); }
+  .card-realia .example { color: var(--realia); }
+
+  .card-lacune { background: var(--lacune-bg); border-color: var(--lacune); }
+  .card-lacune .card-title { color: var(--lacune); }
+  .card-lacune .example { color: var(--lacune); }
+
+  .card-emprunt { background: var(--emprunt-bg); border-color: var(--emprunt); }
+  .card-emprunt .card-title { color: var(--emprunt); }
+  .card-emprunt .example { color: var(--emprunt); }
+
+  .card-calque { background: var(--calque-bg); border-color: var(--calque); }
+  .card-calque .card-title { color: var(--calque); }
+  .card-calque .example { color: var(--calque); }
+
+  .card-xenisme { background: var(--xenisme-bg); border-color: var(--xenisme); }
+  .card-xenisme .card-title { color: var(--xenisme); }
+  .card-xenisme .example { color: var(--xenisme); }
+
+  .card-cultureme { background: var(--cultureme-bg); border-color: var(--cultureme); }
+  .card-cultureme .card-title { color: var(--cultureme); }
+  .card-cultureme .example { color: var(--cultureme); }
+
+  .card-sapir { background: var(--sapir-bg); border-color: var(--sapir); }
+  .card-sapir .card-title { color: var(--sapir); }
+
+  /* Connector arrows */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0;
+    z-index: 1;
+    position: relative;
+  }
+
+  .connector-text {
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 0.15rem 0.7rem;
+    border-radius: 10px;
+    border: 1px dashed var(--line);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .connector-arrow {
+    font-size: 1.2rem;
+    color: var(--line);
+    margin: 0 0.3rem;
+  }
+
+  /* Side-by-side pair with mirror */
+  .pair {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
+    position: relative;
+  }
+
+  .pair .card { flex: 1; }
+
+  .pair-bridge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* Full-width card */
+  .full-width {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Encompassing wrapper */
+  .encompass {
+    border: 2px dashed var(--cultureme);
+    border-radius: 18px;
+    padding: 1.2rem;
+    position: relative;
+    width: 100%;
+  }
+
+  .encompass-label {
+    position: absolute;
+    top: -0.7rem;
+    left: 1.5rem;
+    background: var(--bg);
+    padding: 0 0.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--cultureme);
+  }
+
+  /* Bottom theory card */
+  .theory-wrapper {
+    border: 2px solid var(--sapir);
+    border-radius: 18px;
+    padding: 0.2rem;
+    width: 100%;
+    opacity: 0.85;
+  }
+
+  /* Flow arrows between sections */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .flow svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Legend */
+  .legend {
+    max-width: 900px;
+    margin: 2.5rem auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  @media (max-width: 700px) {
+    .pair { flex-direction: column; gap: 0.8rem; }
+    .pair-bridge { position: static; transform: none; margin: 0 auto; }
+    .card { max-width: 100%; }
+    h1 { font-size: 1.4rem; }
+    body { padding: 1rem 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">Explorations</a>
+  <span class="sep">/</span>
+  <span class="current">Linguistique & Culture</span>
+</nav>
+
+<h1>Cartographie des transferts lexicaux</h1>
+<p class="subtitle">Symétries, recoupements et exemples entre langues</p>
+
+<div class="diagram">
+  <div class="axis">
+
+    <!-- Row 1: Realia / Lacune lexicale (mirror pair) -->
+    <div class="encompass">
+      <span class="encompass-label">Culturème — unité culturelle minimale</span>
+
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-top:0.5rem;">
+
+        <div class="pair">
+          <div class="card card-realia">
+            <div class="card-title">Realia</div>
+            <div class="card-origin">Traductologie · lat. « choses réelles »</div>
+            <div class="card-def">Mot désignant une réalité culturelle spécifique, sans équivalent naturel dans les autres langues.</div>
+            <div class="card-examples">
+              <span class="example">favela</span>
+              <span class="example">arrondissement</span>
+              <span class="example">pub</span>
+              <span class="example">izakaya</span>
+              <span class="example">bistrot</span>
+              <span class="example">sauna</span>
+              <span class="example">kimono</span>
+              <span class="example">souk</span>
+              <span class="example">fjord</span>
+              <span class="example">polder</span>
+              <span class="example">pagode</span>
+              <span class="example">sombrero</span>
+              <span class="example">ramadan</span>
+              <span class="example">bungalow</span>
+            </div>
+          </div>
+
+          <div class="pair-bridge">&#8596; symétrie</div>
+
+          <div class="card card-lacune">
+            <div class="card-title">Lacune lexicale</div>
+            <div class="card-origin">Linguistique contrastive</div>
+            <div class="card-def">Absence dans une langue d'un mot pour un concept existant ailleurs. Le négatif du realia : un mot qui <em>manque</em>.</div>
+            <div class="card-examples">
+              <span class="example">saudade → ∅ fr.</span>
+              <span class="example">privacy → ∅ jp.</span>
+              <span class="example">hygge → ∅ fr.</span>
+              <span class="example">Sehnsucht → ∅ fr.</span>
+              <span class="example">dépaysement → ∅ en.</span>
+              <span class="example">sobremesa → ∅ fr.</span>
+              <span class="example">Torschlusspanik → ∅ fr.</span>
+              <span class="example">retrouvailles → ∅ en.</span>
+              <span class="example">komorebi → ∅ fr.</span>
+              <span class="example">flâner → ∅ en.</span>
+              <span class="example">uitwaaien → ∅ fr.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow -->
+        <div class="flow">
+          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+          <span>face à la lacune, la langue réagit par…</span>
+          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+        </div>
+
+        <!-- Row 2: Emprunt / Calque (two strategies) -->
+        <div class="pair">
+          <div class="card card-emprunt">
+            <div class="card-title">Emprunt lexical</div>
+            <div class="card-origin">Stratégie : importer le mot</div>
+            <div class="card-def">Adoption d'un mot étranger, parfois adapté phonétiquement. Trace fossile du contact entre cultures.</div>
+            <div class="card-examples">
+              <span class="example">redingote ← riding coat</span>
+              <span class="example">algèbre ← al-jabr</span>
+              <span class="example">tsunami</span>
+              <span class="example">zéro ← ṣifr</span>
+              <span class="example">chocolat ← xocolātl</span>
+              <span class="example">café ← qahwa</span>
+              <span class="example">robot ← robota</span>
+              <span class="example">kiosque ← köşk</span>
+              <span class="example">banane ← banana</span>
+              <span class="example">abricot ← al-barqūq</span>
+              <span class="example">bazar ← bāzār</span>
+              <span class="example">pyjama ← pāy-jāma</span>
+            </div>
+          </div>
+
+          <div class="pair-bridge">&#8596; 2 stratégies</div>
+
+          <div class="card card-calque">
+            <div class="card-title">Calque</div>
+            <div class="card-origin">Stratégie : traduire le mot</div>
+            <div class="card-def">Traduction littérale, morphème par morphème, d'un mot étranger avec les ressources de sa propre langue.</div>
+            <div class="card-examples">
+              <span class="example">gratte-ciel ← skyscraper</span>
+              <span class="example">lune de miel ← honeymoon</span>
+              <span class="example">Wolkenkratzer ← skyscraper</span>
+              <span class="example">libre-service ← self-service</span>
+              <span class="example">souris (info) ← mouse</span>
+              <span class="example">fin de semaine ← weekend</span>
+              <span class="example">rascacielos ← skyscraper</span>
+              <span class="example">superhomme ← Übermensch</span>
+              <span class="example">mot-clé ← keyword</span>
+              <span class="example">jardin d'enfants ← Kindergarten</span>
+              <span class="example">logiciel ← software</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow -->
+        <div class="flow">
+          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+          <span>degré d'intégration dans la langue d'accueil</span>
+          <svg viewBox="0 0 20 20"><path d="M10 4 L10 16 M6 12 L10 16 L14 12"/></svg>
+        </div>
+
+        <!-- Row 3: Xénisme -->
+        <div class="card card-xenisme full-width" style="max-width:500px;margin:0 auto;">
+          <div class="card-title">Xénisme</div>
+          <div class="card-origin">Emprunt non intégré · reste « étranger »</div>
+          <div class="card-def">Mot étranger utilisé tel quel, souvent en italique, sans adaptation. Degré zéro de l'intégration — le mot garde son altérité.</div>
+          <div class="card-examples">
+            <span class="example">Schadenfreude</span>
+            <span class="example">wabi-sabi</span>
+            <span class="example">Weltanschauung</span>
+            <span class="example">dolce vita</span>
+            <span class="example">Wanderlust</span>
+            <span class="example">Zeitgeist</span>
+            <span class="example">ubuntu</span>
+            <span class="example">ikigai</span>
+            <span class="example">Gemütlichkeit</span>
+            <span class="example">sprezzatura</span>
+            <span class="example">duende</span>
+            <span class="example">meraki</span>
+            <span class="example">Fernweh</span>
+            <span class="example">jugaad</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Flow to theory -->
+    <div class="connector">
+      <div class="connector-text">cadre théorique sous-jacent</div>
+    </div>
+
+    <!-- Row 4: Sapir-Whorf -->
+    <div class="theory-wrapper">
+      <div class="card card-sapir full-width">
+        <div class="card-title">Hypothèse Sapir-Whorf</div>
+        <div class="card-origin">Relativisme linguistique · Edward Sapir & Benjamin Lee Whorf</div>
+        <div class="card-def">La structure d'une langue influence la perception du monde de ses locuteurs. Chaque lacune, chaque realia, chaque emprunt est une manifestation de ce principe : les langues ne découpent pas le réel de la même façon.</div>
+        <div class="card-examples" style="margin-top:0.5rem;">
+          <span class="example" style="color:var(--sapir);border-color:rgba(26,26,46,0.2)">le russe a 2 mots pour « bleu »</span>
+          <span class="example" style="color:var(--sapir);border-color:rgba(26,26,46,0.2)">le hopi ne conjugue pas le temps</span>
+          <span class="example" style="color:var(--sapir);border-color:rgba(26,26,46,0.2)">le pirahã n'a pas de nombres</span>
+          <span class="example" style="color:var(--sapir);border-color:rgba(26,26,46,0.2)">le guugu yimithirr n'a pas de gauche/droite</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--realia)"></div>Existence (le mot est là)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--lacune)"></div>Absence (le mot manque)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--emprunt)"></div>Importation brute</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--calque)"></div>Traduction-adaptation</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--xenisme)"></div>Altérité préservée</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cultureme)"></div>Englobant culturel</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sapir)"></div>Fondement théorique</div>
+</div>
+
+</body>
+</html>
