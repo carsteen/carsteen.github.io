@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le cycle euphémistique</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+  :root {
+    --bg: #faf8f5;
+    --text: #2c2c2c;
+    --muted: #777;
+    --line: #ccc;
+    --taboo: #8e44ad;
+    --taboo-bg: #f4ecf7;
+    --neutral: #27ae60;
+    --neutral-bg: #e8f8f0;
+    --worn: #e74c3c;
+    --worn-bg: #fdedec;
+    --active: #2980b9;
+    --active-bg: #eaf2f8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .nav {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav a {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav a:hover { color: var(--text); }
+  .nav .sep { color: var(--line); font-size: 0.75rem; }
+  .nav .current { color: var(--text); font-weight: 600; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .intro {
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    text-align: center;
+    line-height: 1.7;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+
+  .intro em { color: var(--text); font-style: normal; font-weight: 600; }
+
+  /* Cycle diagram */
+  .cycle-diagram {
+    max-width: 500px;
+    margin: 0 auto 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  .cycle-step {
+    text-align: center;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .cycle-step strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .step-taboo { background: var(--taboo-bg); color: var(--taboo); border: 1.5px solid var(--taboo); }
+  .step-replace { background: var(--neutral-bg); color: var(--neutral); border: 1.5px solid var(--neutral); }
+  .step-worn { background: var(--worn-bg); color: var(--worn); border: 1.5px solid var(--worn); }
+
+  .cycle-arrow {
+    font-size: 1.4rem;
+    color: var(--line);
+    padding: 0 0.3rem;
+    flex-shrink: 0;
+  }
+
+  .cycle-return {
+    width: 100%;
+    text-align: center;
+    color: var(--line);
+    font-size: 1.2rem;
+    margin-top: -0.3rem;
+    position: relative;
+  }
+
+  .cycle-return span {
+    font-size: 0.72rem;
+    color: var(--muted);
+    position: absolute;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Timelines */
+  .timelines {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .timeline-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--taboo);
+    margin-bottom: 0.15rem;
+  }
+
+  .timeline-section .zone {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  /* Timeline track */
+  .track {
+    position: relative;
+    padding: 0.5rem 0 0.5rem 2rem;
+  }
+
+  .track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0.55rem;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--taboo), var(--line));
+    opacity: 0.3;
+  }
+
+  .node {
+    position: relative;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .node-dot {
+    position: absolute;
+    left: -1.75rem;
+    top: 0.35rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--taboo);
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .node-dot.active {
+    background: var(--active);
+    border-color: var(--active);
+  }
+
+  .node-dot.worn {
+    background: var(--worn);
+    border-color: var(--worn);
+  }
+
+  .node-dot.dead {
+    background: var(--line);
+    border-color: var(--line);
+  }
+
+  .node-date {
+    font-size: 0.72rem;
+    color: var(--muted);
+    min-width: 60px;
+    text-align: right;
+    padding-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .node-content {
+    flex: 1;
+  }
+
+  .node-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  .node-word.active { color: var(--active); }
+  .node-word.worn { color: var(--worn); text-decoration: line-through; text-decoration-color: rgba(231,76,60,0.3); }
+  .node-word.dead { color: var(--line); text-decoration: line-through; }
+
+  .node-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 0.1rem;
+  }
+
+  .node-note em { color: var(--text); font-style: normal; }
+
+  /* Status badges */
+  .status {
+    display: inline-block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .status-active { background: var(--active-bg); color: var(--active); }
+  .status-worn { background: var(--worn-bg); color: var(--worn); }
+  .status-dead { background: #f0f0f0; color: var(--line); }
+
+  /* Sources */
+  .sources {
+    max-width: 900px;
+    margin: 4rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .sources h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+
+  .sources ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sources li {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .sources li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--line);
+    font-weight: 700;
+  }
+
+  .sources li em {
+    font-style: italic;
+    color: var(--text);
+  }
+
+  .sources li .author {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  @media (max-width: 700px) {
+    h1 { font-size: 1.4rem; }
+    body { padding: 1rem 0.5rem; }
+    .cycle-diagram { flex-direction: column; gap: 0.5rem; }
+    .cycle-arrow { transform: rotate(90deg); }
+    .cycle-return { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">Explorations</a>
+  <span class="sep">/</span>
+  <a href="linguistique-culture.html">Linguistique & Culture</a>
+  <span class="sep">/</span>
+  <span class="current">Cycle euphémistique</span>
+</nav>
+
+<h1>Le cycle euphémistique</h1>
+<p class="subtitle">Quand les mots s'usent à force de dire ce qu'on ne veut pas entendre</p>
+
+<p class="intro">
+  Un mot devient <em>tabou</em>. On le remplace par un terme plus doux — un euphémisme.
+  Mais le nouveau mot finit par absorber la charge négative de l'ancien.
+  Il faut en trouver un autre. Et ainsi de suite. Steven Pinker nomme ce cycle
+  <em>euphemism treadmill</em> en 1994 — mais le phénomène est aussi vieux que le langage.
+</p>
+
+<!-- Cycle diagram -->
+<div class="cycle-diagram">
+  <div class="cycle-step step-taboo">
+    <strong>Tabou</strong>
+    Le mot devient inacceptable
+  </div>
+  <div class="cycle-arrow">&rarr;</div>
+  <div class="cycle-step step-replace">
+    <strong>Euphémisme</strong>
+    Un nouveau terme, neutre, le remplace
+  </div>
+  <div class="cycle-arrow">&rarr;</div>
+  <div class="cycle-step step-worn">
+    <strong>Usure</strong>
+    Le sens rattrapele mot
+  </div>
+  <div class="cycle-return">&larr;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&larr; <span>recommencer</span></div>
+</div>
+
+<!-- Timelines -->
+<div class="timelines">
+
+  <!-- 1. Lieux d'aisance -->
+  <div class="timeline-section">
+    <h2>Là où l'on se soulage</h2>
+    <div class="zone">Zone de tabou : fonctions corporelles</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~Ier s.</div>
+        <div class="node-content">
+          <span class="node-word dead">latrina</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Du latin <em>lavātrina</em> (lieu pour se laver). Déjà un euphémisme — on ne disait pas ce qu'on y faisait.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~XVIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">lieux d'aisance</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">« Aisance » = confort. On nomme le <em>confort</em> du lieu, pas sa fonction.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~XVIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">cabinet</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Petite pièce retirée. Le mot désigne l'<em>espace</em>, pas l'usage — même stratégie.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~XVIIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">commodités</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Variante de « lieux d'aisance » — on insiste encore sur le <em>confort</em>.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot worn"></div>
+        <div class="node-date">~XIXe s.</div>
+        <div class="node-content">
+          <span class="node-word worn">toilettes</span> <span class="status status-worn">usé</span>
+          <div class="node-note">Du français <em>toile</em> (le linge de toilette). À l'origine : le <em>processus</em> de se préparer. Devenu tellement transparent qu'on cherche déjà des alternatives.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~XXe s.</div>
+        <div class="node-content">
+          <span class="node-word active">petit coin</span> <span class="status status-active">courant</span>
+          <div class="node-note">Diminutif affectueux + spatial. On réduit l'espace pour minimiser l'acte.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~XXe s.</div>
+        <div class="node-content">
+          <span class="node-word active">sanitaires</span> <span class="status status-active">courant</span>
+          <div class="node-note">Registre technique/médical. L'euphémisme par le <em>jargon</em>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Le handicap -->
+  <div class="timeline-section">
+    <h2>L'altérité du corps</h2>
+    <div class="zone">Zone de tabou : handicap et différence physique</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">estropié</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">De l'ancien français. Décrivait crûment le corps abîmé.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XVIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">infirme</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Du latin <em>infirmus</em> (pas solide). Neutralisation par le latin médical.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~1915</div>
+        <div class="node-content">
+          <span class="node-word dead">handicapé</span> <span class="status status-dead">en déclin</span>
+          <div class="node-note">De l'anglais <em>hand in cap</em> (jeu de hasard). Popularisé après la Première Guerre mondiale pour les mutilés de guerre.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot worn"></div>
+        <div class="node-date">~1980</div>
+        <div class="node-content">
+          <span class="node-word worn">personne à mobilité réduite</span> <span class="status status-worn">usé</span>
+          <div class="node-note">Première formule à placer la <em>personne</em> avant la condition. Tournure administrative.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~2005</div>
+        <div class="node-content">
+          <span class="node-word active">en situation de handicap</span> <span class="status status-active">courant</span>
+          <div class="node-note">Loi du 11 février 2005 en France. Le handicap n'est plus dans la personne mais dans la <em>situation</em> — déplacement conceptuel majeur.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. La mort -->
+  <div class="timeline-section">
+    <h2>Nommer l'innommable</h2>
+    <div class="zone">Zone de tabou : la mort</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot worn"></div>
+        <div class="node-date">~IXe s.</div>
+        <div class="node-content">
+          <span class="node-word worn">mourir</span> <span class="status status-worn">direct</span>
+          <div class="node-note">Du latin <em>morīre</em>. Le mot le plus direct — toujours compris, mais de plus en plus évité dans les registres polis.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">trépasser</span> <span class="status status-dead">littéraire</span>
+          <div class="node-note"><em>Tres-passer</em> = passer au-delà. Métaphore spatiale — la mort comme <em>voyage</em>.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot worn"></div>
+        <div class="node-date">XIVe s.</div>
+        <div class="node-content">
+          <span class="node-word worn">décéder</span> <span class="status status-worn">usé</span>
+          <div class="node-note">Du latin <em>dēcēdere</em> (s'en aller). D'abord juridique, devenu courant au XVIIe. Aujourd'hui presque aussi direct que « mourir ».</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">XVIIe s.</div>
+        <div class="node-content">
+          <span class="node-word active">s'éteindre</span> <span class="status status-active">courant</span>
+          <div class="node-note">La vie comme une <em>flamme</em>. Métaphore douce, encore active dans les nécrologies.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">XIXe s.</div>
+        <div class="node-content">
+          <span class="node-word active">disparaître</span> <span class="status status-active">courant</span>
+          <div class="node-note">La personne n'est pas morte — elle a simplement <em>cessé d'être visible</em>.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">XXe s.</div>
+        <div class="node-content">
+          <span class="node-word active">nous quitter</span> <span class="status status-active">courant</span>
+          <div class="node-note">La mort recentrée sur les <em>vivants</em> — ce n'est pas le mort qui meurt, c'est nous qu'on quitte.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. La folie -->
+  <div class="timeline-section">
+    <h2>Les troubles de l'esprit</h2>
+    <div class="zone">Zone de tabou : santé mentale</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">fol / fou</span> <span class="status status-dead">péjoratif</span>
+          <div class="node-note">Du latin <em>follis</em> (soufflet, outre gonflée). La folie comme <em>vide</em> intérieur.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">1801</div>
+        <div class="node-content">
+          <span class="node-word dead">aliéné</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Pinel publie le <em>Traité médico-philosophique sur l'aliénation mentale</em>. La folie entre dans le médical. « Aliéné » = rendu <em>autre</em> (alienus).</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~1950</div>
+        <div class="node-content">
+          <span class="node-word dead">malade mental</span> <span class="status status-dead">en déclin</span>
+          <div class="node-note">L'aliéné devient un <em>malade</em> — progrès : ce n'est plus une identité, c'est une condition traitable.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~1990</div>
+        <div class="node-content">
+          <span class="node-word active">personne souffrant de troubles psychiques</span> <span class="status status-active">courant</span>
+          <div class="node-note">Même stratégie que le handicap : la <em>personne</em> d'abord, la condition ensuite.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~2015</div>
+        <div class="node-content">
+          <span class="node-word active">neuroatypique / neurodivergent</span> <span class="status status-active">émergent</span>
+          <div class="node-note">Renversement radical : ce n'est plus une <em>maladie</em>, c'est une <em>variation</em>. Le préfixe « neuro- » scientifise, « atypique » normalise la différence.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. La pauvreté -->
+  <div class="timeline-section">
+    <h2>Ne pas avoir</h2>
+    <div class="zone">Zone de tabou : pauvreté et classe sociale</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">pauvre</span> <span class="status status-dead">direct</span>
+          <div class="node-note">Du latin <em>pauper</em>. Mot toujours vivant mais de plus en plus évité dans le discours institutionnel.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XVIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">indigent</span> <span class="status status-dead">administratif</span>
+          <div class="node-note">Du latin <em>indigens</em> (qui manque). Registre juridique et administratif.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">XVIIe s.</div>
+        <div class="node-content">
+          <span class="node-word dead">nécessiteux</span> <span class="status status-dead">vieilli</span>
+          <div class="node-note">« Celui qui est dans le besoin. » On ne dit plus ce qui manque — on dit qu'il y a <em>besoin</em>.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~1960</div>
+        <div class="node-content">
+          <span class="node-word dead">économiquement faible</span> <span class="status status-dead">disparu</span>
+          <div class="node-note">Jargon technocratique. Le pauvre n'est plus une personne, c'est un <em>indicateur</em>.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~1990</div>
+        <div class="node-content">
+          <span class="node-word active">en situation de précarité</span> <span class="status status-active">courant</span>
+          <div class="node-note">Même construction que « en situation de handicap » — la pauvreté comme <em>situation</em>, pas comme identité.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">~2010</div>
+        <div class="node-content">
+          <span class="node-word active">personne vulnérable</span> <span class="status status-active">émergent</span>
+          <div class="node-note">« Vulnérable » = qui <em>peut</em> être blessé. Le mot déplace la responsabilité : ce n'est plus un état, c'est un <em>risque</em> que la société devrait réduire.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Le nom de l'ours -->
+  <div class="timeline-section">
+    <h2>L'animal qu'on ne nomme pas</h2>
+    <div class="zone">Zone de tabou : le sacré et la peur</div>
+    <div class="track">
+      <div class="node">
+        <div class="node-dot dead"></div>
+        <div class="node-date">~3000 av.</div>
+        <div class="node-content">
+          <span class="node-word dead">*h₂ŕ̥tḱos</span> <span class="status status-dead">reconstruit</span>
+          <div class="node-note">Nom proto-indo-européen de l'ours. Conservé en grec (<em>arktos</em>), en latin (<em>ursus</em>), mais <em>perdu</em> dans les langues du Nord où l'animal était craint.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">germ.</div>
+        <div class="node-content">
+          <span class="node-word active">*berô → bear / Bär</span> <span class="status status-active">survivant</span>
+          <div class="node-note">Signifie « le <em>brun</em> ». Le vrai nom a été remplacé par une description de couleur pour ne pas invoquer l'animal.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">slave</div>
+        <div class="node-content">
+          <span class="node-word active">medvěd</span> <span class="status status-active">survivant</span>
+          <div class="node-note">« Mangeur de <em>miel</em> » (med = miel, ved = qui sait/mange). On nomme l'habitude alimentaire, jamais la bête.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">lituanien</div>
+        <div class="node-content">
+          <span class="node-word active">lokys</span> <span class="status status-active">survivant</span>
+          <div class="node-note">Probablement « le <em>lécheur</em> » — encore un surnom descriptif.</div>
+        </div>
+      </div>
+      <div class="node">
+        <div class="node-dot active"></div>
+        <div class="node-date">finnois</div>
+        <div class="node-content">
+          <span class="node-word active">karhu, otso, kontio, mesikämmen…</span> <span class="status status-active">survivants</span>
+          <div class="node-note">Des <em>dizaines</em> de surnoms : « pelage rude », « front large », « patte de miel ». Le tabou était si fort qu'un seul euphémisme ne suffisait pas — chacun s'usait à son tour.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Sources -->
+<div class="sources">
+  <h2>Sources</h2>
+  <ul>
+    <li><span class="author">Steven Pinker</span>, <em>The Language Instinct</em>, 1994 — origine du terme « euphemism treadmill »</li>
+    <li><span class="author">Leonard Bloomfield</span>, <em>Language</em>, 1933 — description du glissement sémantique par tabou (semantic shift)</li>
+    <li><span class="author">Keith Allan & Kate Burridge</span>, <em>Euphemism and Dysphemism: Language Used as Shield and Weapon</em>, 1991</li>
+    <li><span class="author">Keith Allan & Kate Burridge</span>, <em>Forbidden Words: Taboo and the Censoring of Language</em>, 2006</li>
+    <li><span class="author">Philippe Pinel</span>, <em>Traité médico-philosophique sur l'aliénation mentale</em>, 1801 — introduction du terme « aliéné »</li>
+    <li><span class="author">Loi n° 2005-102</span> du 11 février 2005, France — adoption officielle de « en situation de handicap »</li>
+    <li><span class="author">Ringe, Warnow & Taylor</span>, <em>Indo-European and Computational Cladistics</em>, 2002 — reconstruction de *h₂ŕ̥tḱos</li>
+    <li><span class="author">Juha Pentikäinen</span>, <em>The Bear in Finnish and Sámi Tradition</em>, in <em>Kalevala and the World's Traditional Epics</em>, 2002</li>
+  </ul>
+</div>
+
+</body>
+</html>
